@@ -1,0 +1,14 @@
+{
+  "name": "bar-backend",
+  "version": "0.1.0",
+  "description": "the backend server for BAR.",
+  "main": "./src/index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "start": "node ./src/index.js"
+  },
+  "author": "Dyson; John",
+  "license": "ISC"
+}
