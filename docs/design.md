@@ -68,9 +68,13 @@ This project uses the standard [HTTP response status code](https://developer.moz
 
 When the response code is not a *Successful Response*, unless specified otherwise, the response payload will always be a JSON object consists of two entries: one fixed error code (string) and a human readable error message (string) subject to future changes. Notice that in a successful response the payload can be empty (see specific API).
 
-### GET `/api/<box-id>`
+## Backend APIs
 
-Gets a json object that consists all answered questions and responses.
+### Gets
+
+#### GET `/api/<box-id>`
+
+Returns a json object that consists all answered questions and responses.
 
 ```JavaScript
 {
@@ -94,11 +98,11 @@ Gets a json object that consists all answered questions and responses.
 }
 ```
 
-### GET `/api/unanswered-questions/<box-id>`
+#### GET `/api/unanswered-questions/<box-id>`
 
 Gets all unanswered questions in this box.
 
-Here, password is required for authorization; the password is passed in a Authorization header, with the base64 encoded password being the Basic token. The format is `Authorization: Basic <token>`. For example, `Authorization: Basic cGFzc3dvcmQ=`. 
+Here, password is required for authorization; the password is passed in a [Authorization Header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization), with the base64 encoded password being the Basic token. The format is `Authorization: Basic <token>`. For example, `Authorization: Basic cGFzc3dvcmQ=`. 
 
 Returns a list of questions, with the index at their identifier (for answering them).
 
@@ -110,3 +114,64 @@ Returns a list of questions, with the index at their identifier (for answering t
     ... // many questions
 ]
 ```
+
+### Posts
+
+#### POST `/api/create-box`
+
+Create a box. 
+
+User-defined password is stored in the body (this means it should have a Content Type header being `application/json` identifying that body is a JSON). Also, this request is protected by a CAPTCHA service.
+
+The request body is:
+
+```JavaScript
+{
+    email: optional string, // optional email, used for notifications and saving passwords.
+    title: string, // the title, or name of the box
+    description: optional string, // the box's description
+    password: string, // user-entered password for this box
+    captchaCode: string, // CAPTCHA code, for verification
+}
+```
+
+The response is a the box id, in plain string; The header is 201 Created, meaning the resource (box) is created.
+
+#### POST `/api/ask/<box-id>`
+
+Ask question to a box.
+
+The request body is a JSON object:
+
+```JavaScript
+{
+    email: optional string, // optional email, used for notifications when question is answered
+    question: string, // the question
+}
+```
+
+The response is an empty 201 Created response, meaning the resource (anonymously asked question) is created.
+
+#### POST `/api/answer/<box-id>/<question-id>`
+
+Answer a question.
+
+Here, password is required for authorization; see [here](#get-apiunanswered-questionsbox-id) for the authorization header details.
+
+The request is:
+
+```JavaScript
+{
+    private: bool, // if checked, the answer will only be send to the asker (via email); 
+                   // if the email is not available then the answer will be discarded.
+    answer: string,
+}
+```
+
+Returns an empty 201 Created response, meaning the resource (the answer, or, in other words user's *response*) is created.
+
+#### POST `/api/follow-up/<response-id>`
+
+**In this section, unless specified, the term `response` refer to to the user's answer or follow-ups, not HTTP response.**
+
+The request is the response itself, in `text/plain` (plain text) format.
