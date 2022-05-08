@@ -34,7 +34,7 @@ Also, this notation can be seen as a guideline for backend development, but stil
 For recursively repeating structures, `...` will be used to end the repetition.
 
 So, for example,
-```json
+```JavaScript
 {
     stringVariable: string,
     integerVariable: int,
@@ -49,7 +49,7 @@ So, for example,
 
 This specifies an object that could be (in **REAL** JSON), for exmaple:
 
-```json
+```JavaScript
 {
     "stringVariable": "this is a string",
     "integerVariable": 114514, // it stinks, isn't it?
@@ -68,7 +68,7 @@ This specifies an object that could be (in **REAL** JSON), for exmaple:
 
 Gets a json object that consists all answered questions and responses.
 
-```json
+```JavaScript
 {
     boxTitle: string,
     questions: [
@@ -98,7 +98,7 @@ Query String: `?password=<pasword>`
 
 Returns a list of questions, with the index at their identifier (for answering them).
 
-```json
+```JavaScript
 [
     "a question", // example of a question
     "another question",
