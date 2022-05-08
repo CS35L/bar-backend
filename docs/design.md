@@ -24,7 +24,7 @@ For example, `/api/<box-id>` means there is a variable `box-id` under route `/ap
 
 ### Type Notation
 
-When specifying types, the **JSON-like** object has its type followed by its name. Double-slash comments are used to note complex types in human readable language. Normally, words are not capitalized, so if you see [Camels](https://en.wikipedia.org/wiki/Camel_case), this means ~~you're in southern California~~ a type notation (following the convention of JavaScript); most of the times, they will apear later (so the data type can be explained more clearly and easily). 
+When specifying types, the **JSON-like** object has its type followed by its name. Double-slash comments are used to note complex types in human readable language. Normally, words are not capitalized, so if you see [Camels](https://en.wikipedia.org/wiki/Camel_case), this means ~~you're in southern California~~ a type notation (following the convention of JavaScript); most of the times, they will appear later (so the data type can be explained more clearly and easily). 
 
 Also, this notation can be seen as a guideline for backend development, but still, variable naming strictly follows the conventions of the language that is being used (so, say, if I'm using C (or Python) to develop the backend, the type noted `ComplexType` will be something like `struct complex_type` )
 
@@ -47,7 +47,7 @@ So, for example,
 }
 ```
 
-This specifies an object that could be (in **REAL** JSON), for exmaple:
+This specifies an object that could be (in **REAL** JSON), for example:
 
 ```JavaScript
 {
@@ -62,7 +62,11 @@ This specifies an object that could be (in **REAL** JSON), for exmaple:
 ```
 ### Response Status
 
-~~Unlike some companies that discard the native HTTP protocol,~~ this project uses the standard [HTTP response status code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status) to identify the response status. This means the client should check if the response status is in 200-299 (Successful Responses) before further processing, as errors will be identified in other response codes. When the response code is not a *Successful Response*, unless specified otherwise, the response payload will always be a JSON object consists of two entries: one fixed error code (string) and a human readable error message (string) subject to future changes. Notice that in a successful response the payload can be empty (see specific API).
+Unless specified otherwise, the return values in the API document are all under a successful request that has a status code in 200-299.
+
+This project uses the standard [HTTP response status code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status) to identify the response status. This means the client should check if the response status is in 200-299 (Successful Responses) before further processing, as errors will be identified in other response codes. Unless specified otherwise, a Redirection message (300-399) should be followed until the final response is available. 
+
+When the response code is not a *Successful Response*, unless specified otherwise, the response payload will always be a JSON object consists of two entries: one fixed error code (string) and a human readable error message (string) subject to future changes. Notice that in a successful response the payload can be empty (see specific API).
 
 ### GET `/api/<box-id>`
 
@@ -92,9 +96,9 @@ Gets a json object that consists all answered questions and responses.
 
 ### GET `/api/unanswered-questions/<box-id>`
 
-Gets all unanswered questions in this box; password required for authentication.
+Gets all unanswered questions in this box.
 
-Query String: `?password=<pasword>`
+Here, password is required for authorization; the password is passed in a Authorization header, with the base64 encoded password being the Basic token. The format is `Authorization: Basic <token>`. For example, `Authorization: Basic cGFzc3dvcmQ=`. 
 
 Returns a list of questions, with the index at their identifier (for answering them).
 
@@ -106,5 +110,3 @@ Returns a list of questions, with the index at their identifier (for answering t
     ... // many questions
 ]
 ```
-
-
