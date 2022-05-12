@@ -104,13 +104,22 @@ Gets all unanswered questions in this box.
 
 Here, password is required for authorization; the password is passed in a [Authorization Header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization), with the base64 encoded password being the Basic token. The format is `Authorization: Basic <token>`. For example, `Authorization: Basic cGFzc3dvcmQ=`. 
 
-Returns a list of questions, with the index at their identifier (for answering them).
+Returns a list of question objects, with an id at their identifier (for answering them).
 
 ```JavaScript
 [
-    "a question", // example of a question
-    "another question",
-    "some other questions",
+    {
+        id: string, // ID, used for answering
+        content: string // the question itself
+    },
+    {
+        id: string,
+        content: string
+    },
+    {
+        id: string,
+        content: string
+    },
     ... // many questions
 ]
 ```
@@ -152,9 +161,9 @@ The request body is a JSON object:
 
 The response is an empty 201 Created response, meaning the resource (anonymously asked question) is created.
 
-#### POST `/api/answer/<box-id>/<question-id>`
+#### POST `/api/answer/<question-id>`
 
-Answer a question.
+Answer a question by its question id.
 
 Here, password is required for authorization; see [here](#get-apiunanswered-questionsbox-id) for the authorization header details.
 
