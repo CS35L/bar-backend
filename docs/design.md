@@ -138,13 +138,12 @@ The request body is:
 {
     email: optional string, // optional email, used for notifications and saving passwords.
     title: string, // the title, or name of the box
-    description: optional string, // the box's description
     password: string, // user-entered password for this box
     captchaCode: string, // CAPTCHA code, for verification
 }
 ```
 
-The response is a the box id, in plain string; The header is 201 Created, meaning the resource (box) is created.
+The response is the box id, in plain string; The header is 201 Created, meaning the resource (box) is created.
 
 #### POST `/api/ask/<box-id>`
 
@@ -183,4 +182,10 @@ Returns an empty 201 Created response, meaning the resource (the answer, or, in 
 
 **In this section, unless specified, the term `response` refer to to the user's answer or follow-ups, not HTTP response.**
 
-The request is the response itself, in `text/plain` (plain text) format.
+The request is:
+```JavaScript
+{
+    email: optional string, // optional email, used for notifications when question is answered
+    response: string, // the response
+}
+```
