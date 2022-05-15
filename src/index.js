@@ -1,2 +1,31 @@
-// TODO: everything
-console.log('Hello World!');
+// initialize environment variables
+require('dotenv').config()
+
+// importing Koa web server
+const Koa = require('koa')
+// because frontend and backend can be served completely on two different servers
+// we have to allow cross origin requests
+const cors = require('@koa/cors')  
+
+// importing database
+const db = require('./db')
+
+// importing processing router
+const processingRouter = require('./processing')
+
+console.log('initializing server...')
+
+// initialize web server
+const server = new Koa()
+
+// pass the database to the web server
+server.context.db = db
+
+// TODO: sending email
+
+server.use(cors({origin: '*'})) // allows CORS requests from any origin
+      .use(processingRouter.routes())     // add the processing router
+      .use(processingRouter.allowedMethods())
+
+server.listen(process.env.PORT)
+console.log('server ok.')
