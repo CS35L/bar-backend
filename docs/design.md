@@ -72,7 +72,7 @@ When the response code is not a *Successful Response*, unless specified otherwis
 
 ### Gets
 
-#### GET `/api/<box-id>`
+#### GET `/api/box/<box-id>`
 
 Returns a json object that consists all answered questions and responses.
 
