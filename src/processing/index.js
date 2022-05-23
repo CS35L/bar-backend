@@ -3,12 +3,12 @@ const crypto = require('node:crypto')
 
 const router = Router({ prefix: '/api' })
 
-//TODO: finish question body
+
 router.get('/box/:boxId', async (ctx) => {
     const boxId = ctx.params.boxId
     const box = await ctx.db.query('SELECT title FROM boxes WHERE _id = $1;', [boxId])
     const questions = await ctx.db.query('SELECT * FROM questions WHERE box_id = $1;', [boxId])
-    // TODO: get full responses & questions
+
     ctx.body = {
         boxTitle: box.rows[0].title,
         questions: await Promise.all(
@@ -43,7 +43,6 @@ async function verifyPasswordFromHeader(ctx, boxId) {
     }
 }
 //get all unanswered question
-// TODO: implement password
 router.get('/unanswered-questions/:boxId', async (ctx) => {
     const boxId = ctx.params.boxId;
     await verifyPasswordFromHeader(ctx, boxId);
