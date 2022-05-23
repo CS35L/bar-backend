@@ -132,3 +132,6 @@ dist
 # test data source
 test-data
 data.*
+
+# MacOS Specific
+.DS_Store
