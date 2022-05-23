@@ -68,7 +68,9 @@ Unless specified otherwise, the return values in the API document are all under 
 
 This project uses the standard [HTTP response status code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status) to identify the response status. This means the client should check if the response status is in 200-299 (Successful Responses) before further processing, as errors will be identified in other response codes. Unless specified otherwise, a Redirection message (300-399) should be followed until the final response is available. 
 
-When the response code is not a *Successful Response*, unless specified otherwise, the response payload will always be a JSON object consists of two entries: one fixed error code (string) and a human readable error message (string) subject to future changes. Notice that in a successful response the payload can be empty (see specific API).
+When the response code is not a *Successful Response*, unless specified otherwise, the response payload will always be a human readable error message (plain string). 
+
+Notice that in a successful response the payload can be empty (see specific API).
 
 ## Backend APIs
 
