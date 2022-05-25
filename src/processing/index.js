@@ -87,6 +87,7 @@ router.post('/create-box', async (ctx) => {
     ctx.body = box._id;
 })
 
+/*
 router.post('/', async (ctx) => {
     console.log('hellose')
     let box = ctx.request.body;
@@ -117,6 +118,8 @@ router.post('/', async (ctx) => {
     }
     console.log("success!")
 })
+*/
+
 //ask a question in a box
 router.post('/ask/:boxId', async (ctx) => {
     const boxId = ctx.params.boxId;
