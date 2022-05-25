@@ -4,7 +4,8 @@
   "description": "the backend server for BAR.",
   "main": "./src/index.js",
   "directories": {
-    "doc": "docs"
+    "doc": "docs",
+    "test": "tests"
   },
   "scripts": {
     "start": "node ./src/index.js"
@@ -17,7 +18,17 @@
     "dotenv": "^16.0.1",
     "koa": "^2.13.4",
     "koa-bodyparser": "^4.3.0",
+    "node-fetch": "^2.6.1",
     "pg": "^8.7.3",
     "uuid": "^8.3.2"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CS35L/bar-backend.git"
+  },
+  "bugs": {
+    "url": "https://github.com/CS35L/bar-backend/issues"
+  },
+  "homepage": "https://github.com/CS35L/bar-backend#readme"
 }

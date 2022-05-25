@@ -1,8 +1,8 @@
+const fetch = require('node-fetch');
 const Router = require('@koa/router')
 const crypto = require('node:crypto')
 
 const router = Router({ prefix: '/api' })
-
 
 router.get('/box/:boxId', async (ctx) => {
     const boxId = ctx.params.boxId
@@ -57,12 +57,66 @@ router.get('/unanswered-questions/:boxId', async (ctx) => {
 //TODO: ADD CAPTCHA
 router.post('/create-box', async (ctx) => {
     let box = ctx.request.body;
+    if (
+        box.captchaCode === undefined ||
+        box.captchaCode === '' ||
+        box.captchaCode === null
+    ){
+        ctx.throw(400, "Please select captcha.");
+        return; 
+    }
+
+    // Secret Key
+    const secretKey = process.env.CAPTCHA_SECRET_KEY;
+    // Verify URL
+    const verifyUrl = `https://google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${box.captchaCode}&remoteip=${ctx.request.connection.remoteAddress}`;
+    
+    //Make Request to verifyURL
+    const response = await fetch(verifyUrl);
+    const body = await response.json();
+    
+    //CAPTCHA verification failed
+    if (body.success !== undefined && !body.success){
+        ctx.throw(400, "Captcha verification failed.");
+        return; 
+    }
+    
     box = createBox(box);
     await ctx.db.query('INSERT INTO boxes(_id, title, password, notify_email) VALUES ($1, $2, $3, $4);', [box._id, box.title, box.password, box.email])
     ctx.response.status = 201;
     ctx.body = box._id;
 })
 
+router.post('/', async (ctx) => {
+    console.log('hellose')
+    let box = ctx.request.body;
+    if (
+        box.captchaCode === undefined ||
+        box.captchaCode === '' ||
+        box.captchaCode === null
+    ){
+        ctx.throw(400, "Please select captcha.");
+        return; 
+    }
+    console.log('phase2')
+
+    // Secret Key
+    const secretKey = process.env.CAPTCHA_SECRET_KEY;
+    // Verify URL
+    const verifyUrl = `https://google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${box.captchaCode}&remoteip=${ctx.request.ip}`;
+    
+    //Make Request to verifyURL
+    const response = await fetch (verifyUrl);
+    const body = await response.json();
+    
+    console.log(body.success)
+    //CAPTCHA verification failed
+    if (body.success !== undefined && !body.success){
+        ctx.throw(400, "Captcha verification failed.");
+        return; 
+    }
+    console.log("success!")
+})
 //ask a question in a box
 router.post('/ask/:boxId', async (ctx) => {
     const boxId = ctx.params.boxId;
