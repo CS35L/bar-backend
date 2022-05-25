@@ -10,7 +10,7 @@ with NodeJS as backend server and a React-built SPA as the frontend client.
 
 Backend API starts with `/api` route.
 
-Since this is a documentation mostly for unexperienced developers and mostly students, I will write it in a less *serious* way.
+Since this is a documentation mostly for inexperienced developers and mostly students, I will write it in a less *serious* way.
 
 *So **bear** my weird sense of humor when writing documentations - we're **bruins!***  `// see? I've already started!`
 
@@ -34,6 +34,7 @@ Also, this notation can be seen as a guideline for backend development, but stil
 For recursively repeating structures, `...` will be used to end the repetition.
 
 So, for example,
+
 ```JavaScript
 {
     stringVariable: string,
@@ -60,13 +61,16 @@ This specifies an object that could be (in **REAL** JSON), for example:
     }
 }
 ```
+
 ### Response Status
 
 Unless specified otherwise, the return values in the API document are all under a successful request that has a status code in 200-299.
 
 This project uses the standard [HTTP response status code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status) to identify the response status. This means the client should check if the response status is in 200-299 (Successful Responses) before further processing, as errors will be identified in other response codes. Unless specified otherwise, a Redirection message (300-399) should be followed until the final response is available. 
 
-When the response code is not a *Successful Response*, unless specified otherwise, the response payload will always be a JSON object consists of two entries: one fixed error code (string) and a human readable error message (string) subject to future changes. Notice that in a successful response the payload can be empty (see specific API).
+When the response code is not a *Successful Response*, unless specified otherwise, the response payload will always be a human readable error message (plain string). 
+
+Notice that in a successful response the payload can be empty (see specific API).
 
 ## Backend APIs
 
@@ -74,7 +78,7 @@ When the response code is not a *Successful Response*, unless specified otherwis
 
 #### GET `/api/box/<box-id>`
 
-Returns a json object that consists all answered questions and responses.
+Returns a JSON object that consists all answered questions and responses.
 
 ```JavaScript
 {
