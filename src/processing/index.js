@@ -96,6 +96,8 @@ router.post('/ask/:boxId', async (ctx) => {
     let question = ctx.request.body;
     question = createQuestion(question.question, question.email||null);
     await ctx.db.query('INSERT INTO questions(_id, question, notify_email, box_id) VALUES ($1, $2, $3, $4);', [question._id, question.question, question.email, boxId])
+    if(question.email)
+        ctx.notification.notifyQuestion(question.email, question.question, question._id).catch(e => console.error(e));
     ctx.response.status = 201;
 })
 
@@ -106,6 +108,8 @@ router.post('/follow-up/:responseId', async (ctx) => {
     let response = ctx.request.body;
     response = createResponse(response.response, response.email||null);
     await ctx.db.query('INSERT INTO responses(_id, response, notify_email, response_id) VALUES ($1, $2, $3, $4);', [response._id, response.response, response.email, responseId])
+    if(response.email)
+        ctx.notification.notifyResponse(response.email, responseId).catch(e => console.error(e));
     ctx.response.status = 201;
 })
 
@@ -114,10 +118,12 @@ router.post('/follow-up/:responseId', async (ctx) => {
 router.post('/answer/:questionId', async (ctx) => {
     const questionId = ctx.params.questionId;
     let response = ctx.request.body;
-    let boxId = (await ctx.db.query('SELECT box_id FROM questions WHERE _id = $1;', [questionId])).rows[0].box_id;
+    let {boxId, email} = (await ctx.db.query('SELECT box_id,email FROM questions WHERE _id = $1;', [questionId])).rows[0];
     await verifyPasswordFromHeader(ctx, boxId);
     response = createResponse(response.response, response.email||null);
     await ctx.db.query('INSERT INTO responses(_id, response, notify_email, question_id) VALUES ($1, $2, $3, $4);', [response._id, response.response, response.email, questionId])
+    if(email)
+        ctx.notification.notifyAnswer(email, response._id).catch(e => console.error(e));
     ctx.response.status = 201;
 })
 
