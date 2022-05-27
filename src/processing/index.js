@@ -57,6 +57,7 @@ router.get('/unanswered-questions/:boxId', async (ctx) => {
 //TODO: ADD CAPTCHA
 router.post('/create-box', async (ctx) => {
     let box = ctx.request.body;
+ //   console.log(box);
     if (
         box.captchaCode === undefined ||
         box.captchaCode === '' ||
@@ -69,7 +70,7 @@ router.post('/create-box', async (ctx) => {
     // Secret Key
     const secretKey = process.env.CAPTCHA_SECRET_KEY;
     // Verify URL
-    const verifyUrl = `https://google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${box.captchaCode}&remoteip=${ctx.request.connection.remoteAddress}`;
+    const verifyUrl = `https://google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${box.captchaCode}&remoteip=${ctx.request.ip}`;
     
     //Make Request to verifyURL
     const response = await fetch(verifyUrl);
@@ -80,51 +81,20 @@ router.post('/create-box', async (ctx) => {
         ctx.throw(400, "Captcha verification failed.");
         return; 
     }
-    
-    box = createBox(box);
-    await ctx.db.query('INSERT INTO boxes(_id, title, password, notify_email) VALUES ($1, $2, $3, $4);', [box._id, box.title, box.password, box.email])
+    box = createBox(box.title||null, box.password||null, box.email||null);
+//    console.log ('INSERT INTO boxes(_id, title, password, notify_email) VALUES ($1, $2, $3, $4);', [box._id, box.title, box.password, box.email]);
+    let result = await ctx.db.query('INSERT INTO boxes(_id, title, password, notify_email) VALUES ($1, $2, $3, $4);', [box._id, box.title, box.password, box.email])
+//    console.log(result);
     ctx.response.status = 201;
     ctx.body = box._id;
 })
 
-/*
-router.post('/', async (ctx) => {
-    console.log('hellose')
-    let box = ctx.request.body;
-    if (
-        box.captchaCode === undefined ||
-        box.captchaCode === '' ||
-        box.captchaCode === null
-    ){
-        ctx.throw(400, "Please select captcha.");
-        return; 
-    }
-    console.log('phase2')
-
-    // Secret Key
-    const secretKey = process.env.CAPTCHA_SECRET_KEY;
-    // Verify URL
-    const verifyUrl = `https://google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${box.captchaCode}&remoteip=${ctx.request.ip}`;
-    
-    //Make Request to verifyURL
-    const response = await fetch (verifyUrl);
-    const body = await response.json();
-    
-    console.log(body.success)
-    //CAPTCHA verification failed
-    if (body.success !== undefined && !body.success){
-        ctx.throw(400, "Captcha verification failed.");
-        return; 
-    }
-    console.log("success!")
-})
-*/
 
 //ask a question in a box
 router.post('/ask/:boxId', async (ctx) => {
     const boxId = ctx.params.boxId;
     let question = ctx.request.body;
-    question = createQuestion(question);
+    question = createQuestion(question.question, question.email||null);
     await ctx.db.query('INSERT INTO questions(_id, question, notify_email, box_id) VALUES ($1, $2, $3, $4);', [question._id, question.question, question.email, boxId])
     ctx.response.status = 201;
 })
@@ -134,7 +104,7 @@ router.post('/follow-up/:responseId', async (ctx) => {
     const responseId = ctx.params.responseId;
     const test = await ctx.db.query('SELECT _id FROM questions WHERE _id = $1', [responseId]);
     let response = ctx.request.body;
-    response = createResponse(response);
+    response = createResponse(response.response, response.email||null);
     await ctx.db.query('INSERT INTO responses(_id, response, notify_email, response_id) VALUES ($1, $2, $3, $4);', [response._id, response.response, response.email, responseId])
     ctx.response.status = 201;
 })
@@ -146,7 +116,7 @@ router.post('/answer/:questionId', async (ctx) => {
     let response = ctx.request.body;
     let boxId = (await ctx.db.query('SELECT box_id FROM questions WHERE _id = $1;', [questionId])).rows[0].box_id;
     await verifyPasswordFromHeader(ctx, boxId);
-    response = createResponse(response);
+    response = createResponse(response.response, response.email||null);
     await ctx.db.query('INSERT INTO responses(_id, response, notify_email, question_id) VALUES ($1, $2, $3, $4);', [response._id, response.response, response.email, questionId])
     ctx.response.status = 201;
 })
@@ -173,17 +143,19 @@ async function getChildren(db, id, content, isQuestion) {
 
 
 //create a Box
-const createBox = ({ email, title, password, captchaCode }) => {
+const createBox = ( title, password, email ) => {
     return {
         _id: crypto.randomUUID(),
         title,
-        password: `${crypto.createHmac('sha256', password).digest('hex')}`,
+        password: password===null?null:`${crypto.createHash('sha256')
+        .update(password)
+        .digest('hex')}`,
         email,
     };
 };
 
 //create a Question
-const createQuestion = ({ email, question }) => {
+const createQuestion = (question, email) => {
     return {
         _id: crypto.randomUUID(),
         question,
@@ -191,7 +163,7 @@ const createQuestion = ({ email, question }) => {
     }
 }
 
-const createResponse = ({ email, response }) => {
+const createResponse = (response, email) => {
     return {
         _id: crypto.randomUUID(),
         response,
