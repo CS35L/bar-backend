@@ -10,6 +10,8 @@ const bodyParser = require('koa-bodyparser');
 // importing database
 const db = require('./db')
 
+const notification = require('./notification')
+
 // importing processing router
 const processingRouter = require('./processing')
 
@@ -18,8 +20,10 @@ console.log('initializing server...')
 // initialize web server
 const server = new Koa()
 
-// pass the database to the web server
+// pass the database handler to the web server
 server.context.db = db
+// pass the notification handler to the web server
+server.context.notification = notification
 
 // TODO: sending email
 
