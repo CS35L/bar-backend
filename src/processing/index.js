@@ -7,7 +7,7 @@ const router = Router({ prefix: '/api' })
 router.get('/box/:boxId', async (ctx) => {
     const boxId = ctx.params.boxId
     const box = await ctx.db.query('SELECT title FROM boxes WHERE _id = $1;', [boxId])
-    const questions = await ctx.db.query('SELECT * FROM questions WHERE box_id = $1;', [boxId])
+   const questions = await ctx.db.query('SELECT * FROM questions WHERE box_id = $1 AND exists (SELECT * FROM responses WHERE responses.question_id = questions._id);', [boxId])
 
     ctx.body = {
         boxTitle: box.rows[0].title,
@@ -22,6 +22,7 @@ router.get('/box/:boxId', async (ctx) => {
             )
         )
     };
+    //console.log(ctx.body)
 })
 
 async function verifyPasswordFromHeader(ctx, boxId) {
@@ -54,7 +55,6 @@ router.get('/unanswered-questions/:boxId', async (ctx) => {
 })
 
 //create an box
-//TODO: ADD CAPTCHA
 router.post('/create-box', async (ctx) => {
     let box = ctx.request.body;
  //   console.log(box);
@@ -118,12 +118,13 @@ router.post('/follow-up/:responseId', async (ctx) => {
 router.post('/answer/:questionId', async (ctx) => {
     const questionId = ctx.params.questionId;
     let response = ctx.request.body;
-    let {boxId, email} = (await ctx.db.query('SELECT box_id,email FROM questions WHERE _id = $1;', [questionId])).rows[0];
-    await verifyPasswordFromHeader(ctx, boxId);
+    let {box_id, notify_email} = (await ctx.db.query('SELECT box_id,notify_email FROM questions WHERE _id = $1;', [questionId])).rows[0];
+    //console.log((await ctx.db.query('SELECT box_id,notify_email FROM questions WHERE _id = $1;', [questionId])).rows[0],box_id);
+    await verifyPasswordFromHeader(ctx, box_id);
     response = createResponse(response.response, response.email||null);
     await ctx.db.query('INSERT INTO responses(_id, response, notify_email, question_id) VALUES ($1, $2, $3, $4);', [response._id, response.response, response.email, questionId])
-    if(email)
-        ctx.notification.notifyAnswer(email, response._id).catch(e => console.error(e));
+    if(notify_email)
+        ctx.notification.notifyAnswer(notify_email, response._id).catch(e => console.error(e));
     ctx.response.status = 201;
 })
 
