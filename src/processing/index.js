@@ -89,7 +89,7 @@ router.post('/create-box', async (ctx) => {
         })
     });
     const body = await response.json();
-
+    console.log(body)
     //CAPTCHA verification failed
     if (body.success !== undefined && !body.success) {
         ctx.throw(400, "Captcha verification failed.");
