@@ -14,7 +14,7 @@ See [Here](docs/createdb.md)
 
 ## Configure .env
 
-Make a copy of ```.env.example``` and name it ```.env```, change the ```.env``` file according to your configurations.
+Make a copy of `.env.example` and name it `.env`, change the `.env` file according to your configurations.
 
 ## Configure reCAPTCHA
 
@@ -22,8 +22,18 @@ Generate your site-key and secret-key at https://www.google.com/recaptcha/admin/
 
 Add the domain you plan to run our app on (ex. localhost).
 
-Add the secret-key to the ```.env``` file.
+Add the secret-key to the `.env` file.
 
 ## Running the server
 After cloning this repo, Use `npm i` to install all the dependencies.
+
 Then, use `npm start` to run the server.
+
+If successful, you should see
+
+```
+initializing database...
+database ok.
+initializing server...
+server ok.
+```

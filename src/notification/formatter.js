@@ -85,4 +85,4 @@ function newAnswerNotification(boxId, questionId) {
     ])
 }
 
-module.exports = { newQuestionNotification, newAnswerNotification, newReplyNotification }
+module.exports = { newQuestionNotification, newAnswerNotification }
