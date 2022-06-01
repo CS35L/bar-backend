@@ -51,7 +51,7 @@ async function verifyPasswordFromHeader(ctx, boxId) {
 router.get('/unanswered-questions/:boxId', async (ctx) => {
     const boxId = ctx.params.boxId;
     await verifyPasswordFromHeader(ctx, boxId);
-    const questions = await ctx.db.query('SELECT * FROM questions WHERE box_id = $1 AND NOT EXISTS ( SELECT question_id FROM responses );', [boxId])
+    const questions = await ctx.db.query('SELECT * FROM questions WHERE box_id = $1 AND EXISTS ( SELECT question_id FROM responses );', [boxId])
     // console.log(questions.rows, typeof (questions.rows))
     ctx.body = {
         questions: questions.rows.map(e => Object({ _id: e._id, question: e.question }))
@@ -70,17 +70,32 @@ router.post('/create-box', async (ctx) => {
         ctx.throw(400, "Please select captcha.");
         return;
     }
-
+    console.log(`CAPTCHA REQUEST[${box.password}]:${box.captchaCode}`);
     // Secret Key
     const secretKey = process.env.CAPTCHA_SECRET_KEY;
+    console.log('CAPTCHA SECRET KEY: ', secretKey);
+    console.log('Body: ', JSON.stringify({
+        secret: secretKey,
+        response: box.captchaCode,
+        remoteip: ctx.request.ip
+    }))
     // Verify URL
-    //const verifyUrl = `https://google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${box.captchaCode}&remoteip=${ctx.request.ip}`;
-    const verifyUrl = `https://google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${box.captchaCode}`;
-
+    const verifyUrl = 'https://google.com/recaptcha/api/siteverify?secret='+secretKey+'&response='+box.captchaCode;
     //Make Request to verifyURL
-    const response = await fetch(verifyUrl);
+    const response = await fetch(verifyUrl,{
+        method: 'POST',
+        mode: 'cors',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        // body: JSON.stringify({
+        //     // secret: secretKey,
+        //     response: box.captchaCode,
+        // })
+    });
     const body = await response.json();
-
+    console.log(body)
     //CAPTCHA verification failed
     if (body.success !== undefined && !body.success) {
         ctx.throw(400, "Captcha verification failed.");
