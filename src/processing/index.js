@@ -51,7 +51,7 @@ async function verifyPasswordFromHeader(ctx, boxId) {
 router.get('/unanswered-questions/:boxId', async (ctx) => {
     const boxId = ctx.params.boxId;
     await verifyPasswordFromHeader(ctx, boxId);
-    const questions = await ctx.db.query('SELECT * FROM questions WHERE box_id = $1 AND EXISTS ( SELECT question_id FROM responses );', [boxId])
+    const questions = await ctx.db.query('SELECT * FROM questions WHERE box_id = $1 AND NOT EXISTS ( SELECT question_id FROM responses );', [boxId])
     // console.log(questions.rows, typeof (questions.rows))
     ctx.body = {
         questions: questions.rows.map(e => Object({ _id: e._id, question: e.question }))
@@ -128,13 +128,15 @@ router.post('/follow-up/:responseId', async (ctx) => {
 //Answer a question (password required unless NULL)
 router.post('/answer/:questionId', async (ctx) => {
     const questionId = ctx.params.questionId;
+    if (await ctx.db.query('SELECT _id FROM responses WHERE responses.question_id = $1;',[questionId]))
+        ctx.throw(400, 'Question already answered.');
     let response = ctx.request.body;
-    let { box_id, notify_email } = (await ctx.db.query('SELECT box_id,notify_email FROM questions WHERE _id = $1;', [questionId])).rows[0];
-    //console.log((await ctx.db.query('SELECT box_id,notify_email FROM questions WHERE _id = $1;', [questionId])).rows[0],box_id);
-    await verifyPasswordFromHeader(ctx, box_id);
-    response = createResponse(response.response, response.email || null);
+    var notify_email;
+    if (response.private === true)
+        notify_email  = (await ctx.db.query('SELECT notify_email FROM questions WHERE _id = $1;', [questionId])).rows[0];    //console.log((await ctx.db.query('SELECT box_id,notify_email FROM questions WHERE _id = $1;', [questionId])).rows[0],box_id);
+    response = createAnswer(response.answer);
     await ctx.db.query('INSERT INTO responses(_id, response, notify_email, question_id) VALUES ($1, $2, $3, $4);', [response._id, response.response, response.email, questionId])
-    if (email)
+    if (notify_email)
         ctx.notification.notifyAnswer(email, boxId, response._id).catch(e => console.error(e));
     ctx.response.status = 201;
 })
@@ -178,6 +180,13 @@ const createQuestion = (question, email) => {
         _id: crypto.randomUUID(),
         question,
         email,
+    }
+}
+
+const createAnswer = (response) => {
+    return {
+    _id: crypto.randomUUID(),
+    response,
     }
 }
 
