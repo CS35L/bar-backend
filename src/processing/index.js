@@ -70,7 +70,7 @@ router.post('/create-box', async (ctx) => {
         ctx.throw(400, "Please select captcha.");
         return;
     }
-
+    console.log(`CAPTCHA REQUEST[${box.password}]:${box.captchaCode}`);
     // Secret Key
     const secretKey = process.env.CAPTCHA_SECRET_KEY;
     // Verify URL
@@ -80,7 +80,8 @@ router.post('/create-box', async (ctx) => {
         method: 'POST',
         mode: 'cors',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
         },
         body: JSON.stringify({
             secret: secretKey,
