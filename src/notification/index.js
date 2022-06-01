@@ -19,3 +19,5 @@ async function notifyAnswer(email, boxId, responseId) {
         rendered.formatHTML()
     );
 }
+
+module.exports = {notifyAnswer, notifyQuestion}
