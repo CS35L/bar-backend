@@ -17,5 +17,7 @@ async function notifyAnswer(email, boxId, responseId) {
         'You\'re question has been answered!',
         rendered.formatText(),
         rendered.formatHTML()
-    );
+    ).then(e => console.log(e)).catch(e => console.warn(e));
 }
+
+module.exports = {notifyAnswer, notifyQuestion}
