@@ -64,7 +64,7 @@ router.post('/create-box', async (ctx) => {
         box.captchaCode === null
     ){
         ctx.throw(400, "Please select captcha.");
-        return; 
+        return;
     }
 
     // Secret Key
@@ -79,9 +79,9 @@ router.post('/create-box', async (ctx) => {
     //CAPTCHA verification failed
     if (body.success !== undefined && !body.success){
         ctx.throw(400, "Captcha verification failed.");
-        return; 
+        return;
     }
-    box = createBox(box.title||null, box.password||null, box.email||null);
+    box = createBox(box.title||null, box.password, box.email||null);
 //    console.log ('INSERT INTO boxes(_id, title, password, notify_email) VALUES ($1, $2, $3, $4);', [box._id, box.title, box.password, box.email]);
     let result = await ctx.db.query('INSERT INTO boxes(_id, title, password, notify_email) VALUES ($1, $2, $3, $4);', [box._id, box.title, box.password, box.email])
 //    console.log(result);
@@ -154,7 +154,7 @@ const createBox = ( title, password, email ) => {
     return {
         _id: crypto.randomUUID(),
         title,
-        password: password===null?null:`${crypto.createHash('sha256')
+        password: `${crypto.createHash('sha256')
         .update(password)
         .digest('hex')}`,
         email,
