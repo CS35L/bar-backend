@@ -80,7 +80,7 @@ router.post('/create-box', async (ctx) => {
         remoteip: ctx.request.ip
     }))
     // Verify URL
-    const verifyUrl = 'https://google.com/recaptcha/api/siteverify?secret='+secretKey;
+    const verifyUrl = 'https://google.com/recaptcha/api/siteverify?secret='+secretKey+'&response='+box.captchaCode;
     //Make Request to verifyURL
     const response = await fetch(verifyUrl,{
         method: 'POST',
@@ -89,10 +89,10 @@ router.post('/create-box', async (ctx) => {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
         },
-        body: JSON.stringify({
-            // secret: secretKey,
-            response: box.captchaCode,
-        })
+        // body: JSON.stringify({
+        //     // secret: secretKey,
+        //     response: box.captchaCode,
+        // })
     });
     const body = await response.json();
     console.log(body)
