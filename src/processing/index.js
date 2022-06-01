@@ -51,7 +51,7 @@ async function verifyPasswordFromHeader(ctx, boxId) {
 router.get('/unanswered-questions/:boxId', async (ctx) => {
     const boxId = ctx.params.boxId;
     await verifyPasswordFromHeader(ctx, boxId);
-    const questions = await ctx.db.query('SELECT * FROM questions WHERE box_id = $1 AND EXISTS ( SELECT question_id FROM responses );', [boxId])
+    const questions = await ctx.db.query('SELECT * FROM questions WHERE box_id = $1 AND NOT EXISTS ( SELECT question_id FROM responses );', [boxId])
     // console.log(questions.rows, typeof (questions.rows))
     ctx.body = {
         questions: questions.rows.map(e => Object({ _id: e._id, question: e.question }))
