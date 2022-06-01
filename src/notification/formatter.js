@@ -66,29 +66,22 @@ class Header {
     }
 }
 
-function newQuestionNotification(question, questionId) {
+function newQuestionNotification(question, boxId, questionId) {
     return new Container([
         new Header(1, 'You have a new question:'),
         new Question(`${question}`),
         new Container([
             new Text('Click here to '),
-            new Link('answer this question', `${process.env.APP_URL}#question:${questionId}`)
+            new Link('answer this question', `${process.env.APP_URL}#question:${boxId}:${questionId}`)
         ]),
     ])
 }
 
-function newAnswerNotification(questionId) {
+function newAnswerNotification(boxId, questionId) {
     return new Container([
         new Header(1, 'Your question has been answered!'),
         new Text('Click here to '),
-        new Link('view the answer', `${process.env.APP_URL}#question:${questionId}`)
-    ])
-}
-function newReplyNotification(responseId) {
-    return new Container([
-        new Header(1, 'You have a new reply:'),
-        new Text('Click here to '),
-        new Link('see the discussion', `${process.env.APP_URL}#response:${responseId}`)
+        new Link('view the answer', `${process.env.APP_URL}#answer:${boxId}:${questionId}`)
     ])
 }
 

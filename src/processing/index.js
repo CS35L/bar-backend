@@ -7,7 +7,11 @@ const router = Router({ prefix: '/api' })
 router.get('/box/:boxId', async (ctx) => {
     const boxId = ctx.params.boxId
     const box = await ctx.db.query('SELECT title FROM boxes WHERE _id = $1;', [boxId])
-   const questions = await ctx.db.query('SELECT * FROM questions WHERE box_id = $1 AND exists (SELECT * FROM responses WHERE responses.question_id = questions._id);', [boxId])
+    if (!box.rows[0]) {
+        ctx.throw(404, 'Box not found.');
+        return;
+    }
+    const questions = await ctx.db.query('SELECT * FROM questions WHERE box_id = $1 AND exists (SELECT * FROM responses WHERE responses.question_id = questions._id);', [boxId])
 
     ctx.body = {
         boxTitle: box.rows[0].title,
@@ -57,12 +61,12 @@ router.get('/unanswered-questions/:boxId', async (ctx) => {
 //create an box
 router.post('/create-box', async (ctx) => {
     let box = ctx.request.body;
- //   console.log(box);
+    //   console.log(box);
     if (
         box.captchaCode === undefined ||
         box.captchaCode === '' ||
         box.captchaCode === null
-    ){
+    ) {
         ctx.throw(400, "Please select captcha.");
         return;
     }
@@ -71,20 +75,20 @@ router.post('/create-box', async (ctx) => {
     const secretKey = process.env.CAPTCHA_SECRET_KEY;
     // Verify URL
     const verifyUrl = `https://google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${box.captchaCode}&remoteip=${ctx.request.ip}`;
-    
+
     //Make Request to verifyURL
     const response = await fetch(verifyUrl);
     const body = await response.json();
-    
+
     //CAPTCHA verification failed
-    if (body.success !== undefined && !body.success){
+    if (body.success !== undefined && !body.success) {
         ctx.throw(400, "Captcha verification failed.");
         return;
     }
-    box = createBox(box.title||null, box.password, box.email||null);
-//    console.log ('INSERT INTO boxes(_id, title, password, notify_email) VALUES ($1, $2, $3, $4);', [box._id, box.title, box.password, box.email]);
+    box = createBox(box.title || null, box.password, box.email || null);
+    //    console.log ('INSERT INTO boxes(_id, title, password, notify_email) VALUES ($1, $2, $3, $4);', [box._id, box.title, box.password, box.email]);
     let result = await ctx.db.query('INSERT INTO boxes(_id, title, password, notify_email) VALUES ($1, $2, $3, $4);', [box._id, box.title, box.password, box.email])
-//    console.log(result);
+    //    console.log(result);
     ctx.response.status = 201;
     ctx.body = box._id;
 })
@@ -94,22 +98,19 @@ router.post('/create-box', async (ctx) => {
 router.post('/ask/:boxId', async (ctx) => {
     const boxId = ctx.params.boxId;
     let question = ctx.request.body;
-    question = createQuestion(question.question, question.email||null);
+    question = createQuestion(question.question, question.email || null);
     await ctx.db.query('INSERT INTO questions(_id, question, notify_email, box_id) VALUES ($1, $2, $3, $4);', [question._id, question.question, question.email, boxId])
-    if(question.email)
-        ctx.notification.notifyQuestion(question.email, question.question, question._id).catch(e => console.error(e));
+    if (question.email)
+        ctx.notification.notifyQuestion(question.email, boxId, question.question, question._id).catch(e => console.error(e));
     ctx.response.status = 201;
 })
 
 //post a response to a response/question
 router.post('/follow-up/:responseId', async (ctx) => {
     const responseId = ctx.params.responseId;
-    const test = await ctx.db.query('SELECT _id FROM questions WHERE _id = $1', [responseId]);
     let response = ctx.request.body;
-    response = createResponse(response.response, response.email||null);
+    response = createResponse(response.response, response.email || null);
     await ctx.db.query('INSERT INTO responses(_id, response, notify_email, response_id) VALUES ($1, $2, $3, $4);', [response._id, response.response, response.email, responseId])
-    if(response.email)
-        ctx.notification.notifyResponse(response.email, responseId).catch(e => console.error(e));
     ctx.response.status = 201;
 })
 
@@ -118,13 +119,13 @@ router.post('/follow-up/:responseId', async (ctx) => {
 router.post('/answer/:questionId', async (ctx) => {
     const questionId = ctx.params.questionId;
     let response = ctx.request.body;
-    let {box_id, notify_email} = (await ctx.db.query('SELECT box_id,notify_email FROM questions WHERE _id = $1;', [questionId])).rows[0];
+    let { box_id, notify_email } = (await ctx.db.query('SELECT box_id,notify_email FROM questions WHERE _id = $1;', [questionId])).rows[0];
     //console.log((await ctx.db.query('SELECT box_id,notify_email FROM questions WHERE _id = $1;', [questionId])).rows[0],box_id);
     await verifyPasswordFromHeader(ctx, box_id);
-    response = createResponse(response.response, response.email||null);
+    response = createResponse(response.response, response.email || null);
     await ctx.db.query('INSERT INTO responses(_id, response, notify_email, question_id) VALUES ($1, $2, $3, $4);', [response._id, response.response, response.email, questionId])
-    if(notify_email)
-        ctx.notification.notifyAnswer(notify_email, response._id).catch(e => console.error(e));
+    if (email)
+        ctx.notification.notifyAnswer(email, boxId, response._id).catch(e => console.error(e));
     ctx.response.status = 201;
 })
 
@@ -150,13 +151,13 @@ async function getChildren(db, id, content, isQuestion) {
 
 
 //create a Box
-const createBox = ( title, password, email ) => {
+const createBox = (title, password, email) => {
     return {
         _id: crypto.randomUUID(),
         title,
         password: `${crypto.createHash('sha256')
-        .update(password)
-        .digest('hex')}`,
+            .update(password)
+            .digest('hex')}`,
         email,
     };
 };
