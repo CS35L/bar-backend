@@ -74,10 +74,20 @@ router.post('/create-box', async (ctx) => {
     // Secret Key
     const secretKey = process.env.CAPTCHA_SECRET_KEY;
     // Verify URL
-    const verifyUrl = `https://google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${box.captchaCode}&remoteip=${ctx.request.ip}`;
-
+    const verifyUrl = 'https://google.com/recaptcha/api/siteverify';
     //Make Request to verifyURL
-    const response = await fetch(verifyUrl);
+    const response = await fetch(verifyUrl,{
+        method: 'POST',
+        mode: 'cors',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            secret: secretKey,
+            response: box.captchaCode,
+            remoteip: ctx.request.ip
+        })
+    });
     const body = await response.json();
 
     //CAPTCHA verification failed
