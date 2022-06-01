@@ -74,7 +74,8 @@ router.post('/create-box', async (ctx) => {
     // Secret Key
     const secretKey = process.env.CAPTCHA_SECRET_KEY;
     // Verify URL
-    const verifyUrl = `https://google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${box.captchaCode}&remoteip=${ctx.request.ip}`;
+    //const verifyUrl = `https://google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${box.captchaCode}&remoteip=${ctx.request.ip}`;
+    const verifyUrl = `https://google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${box.captchaCode}`;
 
     //Make Request to verifyURL
     const response = await fetch(verifyUrl);
@@ -118,6 +119,8 @@ router.post('/follow-up/:responseId', async (ctx) => {
 //Answer a question (password required unless NULL)
 router.post('/answer/:questionId', async (ctx) => {
     const questionId = ctx.params.questionId;
+    if (await ctx.db.query('SELECT _id FROM responses WHERE responses.question_id = $1;',[questionId]))
+        ctx.throw(400, 'Question already answered.');
     let response = ctx.request.body;
     var notify_email;
     if (response.private === true)
