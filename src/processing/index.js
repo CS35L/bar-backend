@@ -90,9 +90,8 @@ router.post('/create-box', async (ctx) => {
             'Accept': 'application/json',
         },
         body: JSON.stringify({
-            secret: secretKey,
+            // secret: secretKey,
             response: box.captchaCode,
-            remoteip: ctx.request.ip
         })
     });
     const body = await response.json();
