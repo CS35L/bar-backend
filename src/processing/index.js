@@ -19,10 +19,9 @@ router.get('/box/:boxId', async (ctx) => {
         questions: await Promise.all(
             questions.rows.map(
                 async (e) => Object(
-                    {
-                        question: e.question,
-                        followUps: await getChildren(ctx.db, e._id, e.question, true)
-                    }
+                    
+                        await getChildren(ctx.db, e._id, e.question, true)
+                    
                 )
             )
         )
@@ -171,7 +170,6 @@ async function getChildren(db, id, content, isQuestion) {
     // console.log("DB: ", db);
     // console.log(children);
     return isQuestion ? {
-        id,
         content,
         answer: children.rows.length > 0 ? (await getChildren(db, children.rows[0]._id, children.rows[0].response)) : null
     } : {
