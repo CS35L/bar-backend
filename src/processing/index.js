@@ -63,7 +63,7 @@ router.get('/unanswered-questions/:boxId', async (ctx) => {
 
 //create an box
 router.post('/create-box', async (ctx) => {
-    console.log("Attempting to create a box");
+    console.log("Attempting to create a box: ", ctx.request.body);
     console.log("Checking reCAPTCHA...");
     let box = ctx.request.body;
     //   console.log(box);
@@ -78,12 +78,12 @@ router.post('/create-box', async (ctx) => {
     //console.log(`CAPTCHA REQUEST[${box.password}]:${box.captchaCode}`);
     // Secret Key
     const secretKey = process.env.CAPTCHA_SECRET_KEY;
-    console.log('CAPTCHA SECRET KEY: ', secretKey);
-    console.log('Body: ', JSON.stringify({
-        secret: secretKey,
-        response: box.captchaCode,
-        remoteip: ctx.request.ip
-    }))
+    // console.log('CAPTCHA SECRET KEY: ', secretKey);
+    // console.log('Body: ', JSON.stringify({
+    //     secret: secretKey,
+    //     response: box.captchaCode,
+    //     remoteip: ctx.request.ip
+    // }))
     // Verify URL
     const verifyUrl = 'https://google.com/recaptcha/api/siteverify?secret='+secretKey+'&response='+box.captchaCode;
     //Make Request to verifyURL
