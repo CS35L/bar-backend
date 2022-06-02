@@ -135,3 +135,6 @@ data.*
 
 # MacOS Specific
 .DS_Store
+
+# junk
+CAPTCHAtest

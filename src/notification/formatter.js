@@ -16,6 +16,17 @@ class Container {
     }
 }
 
+class Box {
+    constructor(txt) {
+        this.txt = txt;
+    }
+    formatHTML() {
+        return `<div style="margin: 8px;">\n  <h2>${this.txt}</h2>\n</div>\n`
+    }
+    formatText() {
+        return this.txt;
+    }
+}
 class Question {
     constructor(txt) {
         this.txt = txt;
@@ -66,6 +77,17 @@ class Header {
     }
 }
 
+function newBoxNotification(title, boxId) {
+    return new Container([
+        new Header(1, 'You have a new box!'),
+        new Box(`${title}`),
+        new Container([
+            new Text('Click here to '),
+            new Link('view the box', `${process.env.APP_URL}#box:${boxId}`)
+        ])
+    ])
+}
+
 function newQuestionNotification(question, boxId, questionId) {
     return new Container([
         new Header(1, 'You have a new question:'),
@@ -85,4 +107,4 @@ function newAnswerNotification(boxId, questionId) {
     ])
 }
 
-module.exports = { newQuestionNotification, newAnswerNotification }
+module.exports = { newBoxNotification,newQuestionNotification, newAnswerNotification }
