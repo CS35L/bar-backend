@@ -126,7 +126,6 @@ router.post('/ask/:boxId', async (ctx) => {
     let question = ctx.request.body;
     question = createQuestion(question.question, question.email || null);
     await ctx.db.query('INSERT INTO questions(_id, question, notify_email, box_id) VALUES ($1, $2, $3, $4);', [question._id, question.question, question.email, boxId])
-    await ctx.db.query('INSERT INTO questions(_id, question, notify_email, box_id) VALUES ($1, $2, $3, $4);', [question._id, question.question, question.email, boxId])
     var notify_email  = (await ctx.db.query('SELECT notify_email FROM boxes WHERE _id = $1;', [boxId])).rows[0];
     if (notify_email)
         ctx.notification.notifyQuestion(question.email, boxId, notify_email, question._id).catch(e => console.error(e));
