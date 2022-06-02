@@ -28,4 +28,4 @@ async function notifyAnswer(email, boxId, responseId) {
     ).then(e => console.log(e)).catch(e => console.warn(e));
 }
 
-module.exports = {notifyAnswer, notifyQuestion}
+module.exports = {notifyAnswer, notifyQuestion, notifyBox}
