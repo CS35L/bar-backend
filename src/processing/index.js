@@ -27,6 +27,7 @@ router.get('/box/:boxId', async (ctx) => {
             )
         )
     };
+    console.log("Successfully got box: ", ctx.params.boxId);
     //console.log(ctx.body)
 })
 
