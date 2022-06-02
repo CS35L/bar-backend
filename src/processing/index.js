@@ -129,7 +129,7 @@ router.post('/ask/:boxId', async (ctx) => {
     await ctx.db.query('INSERT INTO questions(_id, question, notify_email, box_id) VALUES ($1, $2, $3, $4);', [question._id, question.question, question.email, boxId])
     var notify_email  = (await ctx.db.query('SELECT notify_email FROM boxes WHERE _id = $1;', [boxId])).rows[0];
     if (notify_email)
-        ctx.notification.notifyQuestion(question.email, boxId, notify_email, question._id).catch(e => console.error(e));
+        ctx.notification.notifyQuestion(notify_email, boxId, question.question, question._id).catch(e => console.error(e));
     ctx.response.status = 201;
     console.log("Question asked: success, id: ", question._id);
 })
