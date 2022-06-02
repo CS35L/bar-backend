@@ -77,11 +77,12 @@ class Header {
     }
 }
 
-function newBoxNotification(title, boxId) {
+function newBoxNotification(title, password, boxId) {
     return new Container([
         new Header(1, 'You have a new box!'),
         new Box(`${title}`),
         new Container([
+            new Text(`Your password is: ${password}\n` ),
             new Text('Click here to '),
             new Link('view the box', `${process.env.APP_URL}#box:${boxId}`)
         ])

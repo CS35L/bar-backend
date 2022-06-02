@@ -5,6 +5,7 @@ const crypto = require('node:crypto')
 const router = Router({ prefix: '/api' })
 
 router.get('/box/:boxId', async (ctx) => {
+    console.log("Attempting to get box: ", ctx.params.boxId);
     const boxId = ctx.params.boxId
     const box = await ctx.db.query('SELECT title FROM boxes WHERE _id = $1;', [boxId])
     if (!box.rows[0]) {
@@ -49,6 +50,7 @@ async function verifyPasswordFromHeader(ctx, boxId) {
 }
 //get all unanswered question
 router.get('/unanswered-questions/:boxId', async (ctx) => {
+    console.log("Attempting to get unanswered questions: ", ctx.params.boxId);
     const boxId = ctx.params.boxId;
     await verifyPasswordFromHeader(ctx, boxId);
     const questions = await ctx.db.query('SELECT * FROM questions WHERE box_id = $1 AND NOT EXISTS ( SELECT * FROM responses WHERE responses.question_id = questions._id );', [boxId])
@@ -56,10 +58,13 @@ router.get('/unanswered-questions/:boxId', async (ctx) => {
     ctx.body = {
         questions: questions.rows.map(e => Object({ _id: e._id, question: e.question }))
     };
+    console.log("Get unanswered questions: success");
 })
 
 //create an box
 router.post('/create-box', async (ctx) => {
+    console.log("Attempting to create a box");
+    console.log("Checking reCAPTCHA...");
     let box = ctx.request.body;
     //   console.log(box);
     if (
@@ -70,7 +75,7 @@ router.post('/create-box', async (ctx) => {
         ctx.throw(400, "Please select captcha.");
         return;
     }
-    console.log(`CAPTCHA REQUEST[${box.password}]:${box.captchaCode}`);
+    //console.log(`CAPTCHA REQUEST[${box.password}]:${box.captchaCode}`);
     // Secret Key
     const secretKey = process.env.CAPTCHA_SECRET_KEY;
     console.log('CAPTCHA SECRET KEY: ', secretKey);
@@ -95,25 +100,28 @@ router.post('/create-box', async (ctx) => {
         // })
     });
     const body = await response.json();
-    console.log(body)
+    //console.log(body)
     //CAPTCHA verification failed
     if (body.success !== undefined && !body.success) {
         ctx.throw(400, "Captcha verification failed.");
         return;
     }
+    console.log("reCAPTCHA verification success.");
     box = createBox(box.title || null, box.password, box.email || null);
     //    console.log ('INSERT INTO boxes(_id, title, password, notify_email) VALUES ($1, $2, $3, $4);', [box._id, box.title, box.password, box.email]);
     await ctx.db.query('INSERT INTO boxes(_id, title, password, notify_email) VALUES ($1, $2, $3, $4);', [box._id, box.title, box.password, box.email]);
     //    console.log(result);
     if(box.email)
-        ctx.notification.notifyBox(box._id, box.title).catch(e=>console.error(e));
+        ctx.notification.notifyBox(box.email, box.title, box.password, box._id).catch(e=>console.error(e));
     ctx.response.status = 201;
     ctx.body = box._id;
+    console.log("Box created: success, id: ", box._id);
 })
 
 
 //ask a question in a box
 router.post('/ask/:boxId', async (ctx) => {
+    console.log("Attempting to ask a question: ", ctx.params.boxId);
     const boxId = ctx.params.boxId;
     let question = ctx.request.body;
     question = createQuestion(question.question, question.email || null);
@@ -123,20 +131,24 @@ router.post('/ask/:boxId', async (ctx) => {
     if (notify_email)
         ctx.notification.notifyQuestion(question.email, boxId, notify_email, question._id).catch(e => console.error(e));
     ctx.response.status = 201;
+    console.log("Question asked: success, id: ", question._id);
 })
 
 //post a response to a response/question
 router.post('/follow-up/:responseId', async (ctx) => {
+    console.log("Attempting to post a follow-up: ", ctx.params.responseId);
     const responseId = ctx.params.responseId;
     let response = ctx.request.body;
     response = createResponse(response.response, response.email || null);
     await ctx.db.query('INSERT INTO responses(_id, response, notify_email, response_id) VALUES ($1, $2, $3, $4);', [response._id, response.response, response.email, responseId])
     ctx.response.status = 201;
+    console.log("Follow-up posted: success, id: ", response._id);
 })
 
 
 //Answer a question (password required unless NULL)
 router.post('/answer/:questionId', async (ctx) => {
+    console.log("Attempting to answer a question: ", ctx.params.questionId);
     const questionId = ctx.params.questionId;
     if ((await ctx.db.query('SELECT _id FROM responses WHERE responses.question_id = $1;',[questionId])).rows.length)
         ctx.throw(400, 'Question already answered.');
@@ -149,6 +161,7 @@ router.post('/answer/:questionId', async (ctx) => {
     if (notify_email)
         ctx.notification.notifyAnswer(notify_email, boxId, response._id).catch(e => console.error(e));
     ctx.response.status = 201;
+    console.log("Answer posted: success, id: ", response._id);
 })
 
 
