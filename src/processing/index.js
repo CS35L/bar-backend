@@ -51,7 +51,7 @@ async function verifyPasswordFromHeader(ctx, boxId) {
 router.get('/unanswered-questions/:boxId', async (ctx) => {
     const boxId = ctx.params.boxId;
     await verifyPasswordFromHeader(ctx, boxId);
-    const questions = await ctx.db.query('SELECT * FROM questions WHERE box_id = $1 AND EXISTS ( SELECT question_id FROM responses );', [boxId])
+    const questions = await ctx.db.query('SELECT * FROM questions WHERE box_id = $1 AND NOT EXISTS ( SELECT * FROM responses WHERE responses.question_id = questions._id );', [boxId])
     // console.log(questions.rows, typeof (questions.rows))
     ctx.body = {
         questions: questions.rows.map(e => Object({ _id: e._id, question: e.question }))
@@ -134,7 +134,7 @@ router.post('/follow-up/:responseId', async (ctx) => {
 //Answer a question (password required unless NULL)
 router.post('/answer/:questionId', async (ctx) => {
     const questionId = ctx.params.questionId;
-    if (await ctx.db.query('SELECT _id FROM responses WHERE responses.question_id = $1;',[questionId]))
+    if ((await ctx.db.query('SELECT _id FROM responses WHERE responses.question_id = $1;',[questionId])).rows.length)
         ctx.throw(400, 'Question already answered.');
     let response = ctx.request.body;
     var notify_email;
