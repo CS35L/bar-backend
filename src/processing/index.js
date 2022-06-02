@@ -113,7 +113,7 @@ router.post('/create-box', async (ctx) => {
     await ctx.db.query('INSERT INTO boxes(_id, title, password, notify_email) VALUES ($1, $2, $3, $4);', [box._id, box.title, box.password, box.email]);
     //    console.log(result);
     if(box.email)
-        ctx.notification.notifyBox(box.email, box.title, box.password, box._id).catch(e=>console.error(e));
+        ctx.notification.notifyBox(box.email, box.title, box._id).catch(e=>console.error(e));
     ctx.response.status = 201;
     ctx.body = box._id;
     console.log("Box created: success, id: ", box._id);

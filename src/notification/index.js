@@ -1,12 +1,12 @@
 const { send } = require("./email");
 const { newQuestionNotification, newAnswerNotification, newBoxNotification } = require('./formatter');
 
-async function notifyBox(email, title, password, boxId) {
+async function notifyBox(email, title, boxId) {
     console.log("Sending box notification to " + email);
     if (title===undefined){
         title = "Ask Me Anything";
     };
-    const rendered = newBoxNotification(title, password, boxId);
+    const rendered = newBoxNotification(title, boxId);
     await send(email,
         'You have a new box!',
         rendered.formatText(),
