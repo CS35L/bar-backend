@@ -1,5 +1,5 @@
 const { send } = require("./email");
-const { newQuestionNotification, newAnswerNotification, newReplyNotification } = require('./formatter');
+const { newQuestionNotification, newAnswerNotification, newBoxNotification } = require('./formatter');
 
 async function notifyBox(email, title, password, boxId) {
     console.log("Sending box notification to " + email);
