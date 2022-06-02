@@ -121,7 +121,7 @@ router.post('/create-box', async (ctx) => {
 
 //ask a question in a box
 router.post('/ask/:boxId', async (ctx) => {
-    console.log("Attempting to ask a question: ", ctx.params.boxId);
+    console.log("Attempting to ask a question: ", ctx.params.boxId, ctx.request.body);
     const boxId = ctx.params.boxId;
     let question = ctx.request.body;
     question = createQuestion(question.question, question.email || null);
@@ -136,7 +136,7 @@ router.post('/ask/:boxId', async (ctx) => {
 
 //post a response to a response/question
 router.post('/follow-up/:responseId', async (ctx) => {
-    console.log("Attempting to post a follow-up: ", ctx.params.responseId);
+    console.log("Attempting to post a follow-up: ", ctx.params.responseId, ctx.request.body);
     const responseId = ctx.params.responseId;
     let response = ctx.request.body;
     response = createResponse(response.response, response.email || null);
@@ -148,7 +148,7 @@ router.post('/follow-up/:responseId', async (ctx) => {
 
 //Answer a question (password required unless NULL)
 router.post('/answer/:questionId', async (ctx) => {
-    console.log("Attempting to answer a question: ", ctx.params.questionId);
+    console.log("Attempting to answer a question: ", ctx.params.questionId, ctx.request.body);
     const questionId = ctx.params.questionId;
     if ((await ctx.db.query('SELECT _id FROM responses WHERE responses.question_id = $1;',[questionId])).rows.length)
         ctx.throw(400, 'Question already answered.');
