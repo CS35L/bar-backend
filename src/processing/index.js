@@ -109,7 +109,6 @@ router.post('/create-box', async (ctx) => {
     }
     console.log("reCAPTCHA verification success.");
     box = createBox(box.title || null, box.password, box.email || null);
-    //    console.log ('INSERT INTO boxes(_id, title, password, notify_email) VALUES ($1, $2, $3, $4);', [box._id, box.title, box.password, box.email]);
     await ctx.db.query('INSERT INTO boxes(_id, title, password, notify_email) VALUES ($1, $2, $3, $4);', [box._id, box.title, box.password, box.email]);
     //    console.log(result);
     if(box.email)
@@ -127,7 +126,7 @@ router.post('/ask/:boxId', async (ctx) => {
     let question = ctx.request.body;
     question = createQuestion(question.question, question.email || null);
     await ctx.db.query('INSERT INTO questions(_id, question, notify_email, box_id) VALUES ($1, $2, $3, $4);', [question._id, question.question, question.email, boxId])
-    var notify_email  = (await ctx.db.query('SELECT notify_email FROM boxes WHERE _id = $1;', [boxId])).rows[0];
+    var notify_email  = (await ctx.db.query('SELECT notify_email FROM boxes WHERE _id = $1;', [boxId])).rows[0].notify_email;
     if (notify_email)
         ctx.notification.notifyQuestion(notify_email, boxId, question.question, question._id).catch(e => console.error(e));
     ctx.response.status = 201;
@@ -155,7 +154,7 @@ router.post('/answer/:questionId', async (ctx) => {
     let response = ctx.request.body;
     var notify_email;
     if (response.private === true)
-        notify_email  = (await ctx.db.query('SELECT notify_email FROM questions WHERE _id = $1;', [questionId])).rows[0];    //console.log((await ctx.db.query('SELECT box_id,notify_email FROM questions WHERE _id = $1;', [questionId])).rows[0],box_id);
+        notify_email  = (await ctx.db.query('SELECT notify_email FROM questions WHERE _id = $1;', [questionId])).rows[0].notify_email;    //console.log((await ctx.db.query('SELECT box_id,notify_email FROM questions WHERE _id = $1;', [questionId])).rows[0],box_id);
     response = createAnswer(response.answer);
     await ctx.db.query('INSERT INTO responses(_id, response, notify_email, question_id) VALUES ($1, $2, $3, $4);', [response._id, response.response, response.email, questionId])
     if (notify_email)
