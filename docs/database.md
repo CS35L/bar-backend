@@ -16,7 +16,7 @@ Platform: PostgreSQL
 
 `title` refers to the box title.
 
-`password` refers to the password of the box (can be `NULL`).
+`password` refers to the password of the box.
 
 ### Questions
 

@@ -114,15 +114,15 @@ Returns a list of question objects, with an id at their identifier (for answerin
 [
     {
         id: string, // ID, used for answering
-        content: string // the question itself
+        question: string // the question itself
     },
     {
         id: string,
-        content: string
+        question: string
     },
     {
         id: string,
-        content: string
+        question: string
     },
     ... // many questions
 ]
@@ -174,9 +174,8 @@ The request is:
 
 ```JavaScript
 {
-    private: bool, // if checked, the answer will only be send to the asker (via email); 
-                   // if the email is not available then the answer will be discarded.
-    answer: string,
+    private: bool, // if checked, the asker of the question will be notified via email;
+    answer: string, // the answer
 }
 ```
 
@@ -186,6 +185,8 @@ Returns an empty 201 Created response, meaning the resource (the answer, or, in 
 
 **In this section, unless specified, the term `response` refer to to the user's answer or follow-ups, not HTTP response.**
 
+Reply to a response by its response id.
+
 The request is:
 ```JavaScript
 {
@@ -193,3 +194,4 @@ The request is:
     response: string, // the response
 }
 ```
+Returns an empty 201 Created HTTP response, meaning the resource is created.

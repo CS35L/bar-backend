@@ -4,17 +4,15 @@ Download postgreSQL from https://www.postgresql.org/download/
 
 The project uses version 14.3 for Windows x86-64.
 
-For Windows:
+### For Windows:
 
 Open Window PowerShell, run
+```$ psql```
+to check if your installation is added to PATH, if not, add
 
- ```$ psql``` 
+```C:\Program Files\PostgreSQL\14\bin``` or ```path to PostgreSQL\version\bin```
  
- to check if your installation is added to PATH, if not, add to path 
- 
- ```C:\Program Files\PostgreSQL\14\bin``` or ```path to PostgreSQL\version\bin``` 
- 
- and restart PowerShell.
+to PATH and restart PowerShell.
 
 Now, run
 
@@ -41,3 +39,5 @@ Now, exit psql by running
 Then, run 
 
 ```psql -U postgres -d mydb -f path_to/repo/docs/create_db.sql```
+
+to initialize the database.
