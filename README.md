@@ -7,7 +7,15 @@ To see the project proposal, see [Here](docs/proposal.md)
 
 To see the design documentation, see [Here](docs/design.md)
 
+This project is writtn in JavaScript, with the standard of [ECMAScript 2017](https://262.ecma-international.org/8.0/).
 
+This project is created using the following techstacks:
+- [NodeJS](https://nodejs.org/en/) for running web server.
+- [KoaJS](https://koajs.com/) for routing.
+- [Nginx](https://www.nginx.com/) for reverse proxy.
+- [reCAPTCHA V2](https://www.google.com/recaptcha/about/) for CAPTCHA services.
+- [PostgreSQL](https://www.postgresql.org/) for our database.
+- [PGAdmin](https://www.pgadmin.org/) for managing our database.
 # Building
 ## Initializing the data base.
 See [Here](docs/createdb.md)
