@@ -25,6 +25,9 @@ Add the domain you plan to run our app on (ex. localhost).
 Add the secret-key to the `.env` file.
 
 ## Running the server
+
+*** Please make sure you have `npm` and `node` installed from https://nodejs.org/en/ ***
+
 After cloning this repo, Use `npm i` to install all the dependencies.
 
 Then, use `npm start` to run the server.
