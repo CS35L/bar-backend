@@ -10,7 +10,7 @@ Open Window PowerShell, run
 ```$ psql```
 to check if your installation is added to PATH, if not, add
 
-```C:\Program Files\PostgreSQL\14\bin``` or ```path to PostgreSQL\version\bin```
+```C:\Program Files\PostgreSQL\14\bin``` or ```path\to\PostgreSQL\version\bin```
  
 to PATH and restart PowerShell.
 
@@ -38,6 +38,6 @@ Now, exit psql by running
 
 Then, run 
 
-```psql -U postgres -d mydb -f path_to/repo/docs/create_db.sql```
+```psql -U postgres -d mydb -f path\to\repo\docs\create_db.sql```
 
 to initialize the database.
