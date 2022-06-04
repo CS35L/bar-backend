@@ -25,8 +25,6 @@ server.context.db = db
 // pass the notification handler to the web server
 server.context.notification = notification
 
-// TODO: sending email
-
 server.use(cors({origin: '*'})) // allows CORS requests from any origin
       .use(bodyParser())        //allows server to parse post requests    
       .use(processingRouter.routes())     // add the processing router

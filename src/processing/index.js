@@ -27,7 +27,6 @@ router.get('/box/:boxId', async (ctx) => {
         )
     };
     console.log("Successfully got box: ", ctx.params.boxId);
-    //console.log(ctx.body)
 })
 
 async function verifyPasswordFromHeader(ctx, boxId) {
@@ -54,7 +53,6 @@ router.get('/unanswered-questions/:boxId', async (ctx) => {
     const boxId = ctx.params.boxId;
     await verifyPasswordFromHeader(ctx, boxId);
     const questions = await ctx.db.query('SELECT * FROM questions WHERE box_id = $1 AND NOT EXISTS ( SELECT * FROM responses WHERE responses.question_id = questions._id );', [boxId])
-    // console.log(questions.rows, typeof (questions.rows))
     ctx.body = {
         questions: questions.rows.map(e => Object({ _id: e._id, question: e.question }))
     };
@@ -66,7 +64,6 @@ router.post('/create-box', async (ctx) => {
     console.log("Attempting to create a box: ", ctx.request.body);
     console.log("Checking reCAPTCHA...");
     let box = ctx.request.body;
-    //   console.log(box);
     if (
         box.captchaCode === undefined ||
         box.captchaCode === '' ||
@@ -75,15 +72,8 @@ router.post('/create-box', async (ctx) => {
         ctx.throw(400, "Please select captcha.");
         return;
     }
-    //console.log(`CAPTCHA REQUEST[${box.password}]:${box.captchaCode}`);
     // Secret Key
     const secretKey = process.env.CAPTCHA_SECRET_KEY;
-    // console.log('CAPTCHA SECRET KEY: ', secretKey);
-    // console.log('Body: ', JSON.stringify({
-    //     secret: secretKey,
-    //     response: box.captchaCode,
-    //     remoteip: ctx.request.ip
-    // }))
     // Verify URL
     const verifyUrl = 'https://google.com/recaptcha/api/siteverify?secret='+secretKey+'&response='+box.captchaCode;
     //Make Request to verifyURL
@@ -94,13 +84,8 @@ router.post('/create-box', async (ctx) => {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
         },
-        // body: JSON.stringify({
-        //     // secret: secretKey,
-        //     response: box.captchaCode,
-        // })
     });
     const body = await response.json();
-    //console.log(body)
     //CAPTCHA verification failed
     if (body.success !== undefined && !body.success) {
         ctx.throw(400, "Captcha verification failed.");
@@ -109,7 +94,6 @@ router.post('/create-box', async (ctx) => {
     console.log("reCAPTCHA verification success.");
     box = createBox(box.title || null, box.password, box.email || null);
     await ctx.db.query('INSERT INTO boxes(_id, title, password, notify_email) VALUES ($1, $2, $3, $4);', [box._id, box.title, box.password, box.email]);
-    //    console.log(result);
     if(box.email)
         ctx.notification.notifyBox(box.email, box.title, box._id).catch(e=>console.error(e));
     ctx.response.status = 201;
@@ -163,12 +147,9 @@ router.post('/answer/:questionId', async (ctx) => {
 })
 
 
-
-//
+//Get all children of a question or a response
 async function getChildren(db, id, content, isQuestion) {
     const children = await db.query('SELECT _id, response FROM responses WHERE (response_id=$1 or question_id=$1);', [id])
-    // console.log("DB: ", db);
-    // console.log(children);
     return isQuestion ? {
         content,
         answer: children.rows.length > 0 ? (await getChildren(db, children.rows[0]._id, children.rows[0].response)) : null
@@ -178,8 +159,6 @@ async function getChildren(db, id, content, isQuestion) {
         followUps: children.rows.length > 0 ? await Promise.all(children.rows.map(async (e) => await getChildren(db, e._id, e.response))) : null
     };
 }
-
-
 
 
 //create a Box
@@ -203,6 +182,7 @@ const createQuestion = (question, email) => {
     }
 }
 
+//create a Answer
 const createAnswer = (response) => {
     return {
     _id: crypto.randomUUID(),
@@ -210,6 +190,7 @@ const createAnswer = (response) => {
     }
 }
 
+//create a Response
 const createResponse = (response, email) => {
     return {
         _id: crypto.randomUUID(),
